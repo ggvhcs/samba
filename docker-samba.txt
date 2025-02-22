@@ -1,0 +1,21 @@
+$ cat Dockerfile 
+$ cd ~/Documents/GitHub/linux/samba
+$ touch run-samba.sh
+---
+/usr/sbin/nmbd && /usr/sbin/smbd
+---
+$ sudo docker build -t debian_samba .
+
+$ sudo docker run -ti --name smb-driver \
+--net homenet --ip 172.15.0.20 \
+-d \
+-v $(pwd):/app \
+--interactive --tty --entrypoint /bin/bash debian_samba
+
+$ sudo docker ps
+$ sudo docker exec -it 5f59905cc68e bash
+$ cp smb.conf /etc/samba
+
+$ --- run the service --- #
+$ /usr/sbin/nmbd
+$ /usr/sbin/smbd
