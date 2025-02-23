@@ -13,8 +13,7 @@ smbuser = "smbuser"
 nano /etc/samba/smb.conf
 
 $ --- run the service --- #
-$ /usr/sbin/nmbd
-$ /usr/sbin/smbd
+$ /usr/sbin/nmbd && /usr/sbin/smbd
 
 testparm
 
