@@ -1,29 +1,84 @@
-https://superuser.com/questions/1400568/howto-to-configure-samba-add-users-and-groups-with-different-permissions-in-va
+Develop Enviroment:
+---
+Linux Mint 21.2 Mate x64.
+Docker version 24.0.7, build 24.0.7-0ubuntu2~22.04.1
+git version 2.34.1
+Github Desktop version 3.2.0-linux1 (x64)
+Code version 1.96.4
+---
 
-$ cat Dockerfile 
 $ cd ~/Documents/GitHub/linux/samba
+$ chmod 777 -Rvf ../samba
+
+--- Dockerfile file created ---
+$ touch Dockerfile
+$ nano Dockerfile
+$ cat Dockerfile 
+---
+FROM debian:latest
+
+EXPOSE 137/udp 138/udp
+EXPOSE 139 445
+
+RUN apt update -qq && apt install -qq -y samba
+RUN apt install -qq -y samba-common-bin
+RUN apt install -qq -y lsof
+RUN apt install -qq -y vim
+RUN apt install -qq -y nano
+RUN apt clean 
+RUN rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+ADD run-samba.sh /app/run-samba.sh
+RUN chmod +x /app/run-samba.sh
+
+CMD [ "bash", "/app/run-samba.sh" ]
+---
+
 $ touch run-samba.sh
+$ cat run-samba.sh
 ---
 /usr/sbin/nmbd && /usr/sbin/smbd
 ---
-$ docker build -t debian_samba .
 
-$ sudo docker run -ti --name smb-driver \
---net homenet --ip 172.15.0.20 \
+--- create image from debian latest ---
+$ sudo docker build -t debian-samba .
+$ sudo docker images |grep samba
+---
+debian_samba                     latest           57691f3b30f7   30 hours ago    468MB
+---
+
+---
+run an sqlite container with (-d ) for create in backgruond
+net bridge interface for connect to samba and -v for the confs and volumes.
+---
+$ sudo docker run -ti --name smbdriver \
+--net homenet --ip 172.15.0.18 \
 -d \
 -v $(pwd):/app \
 -v $(pwd)/smb.conf:/etc/samba/smb.conf \
---interactive --tty --entrypoint /bin/bash debian_samba
+--interactive --tty --entrypoint /bin/bash debian-samba
 
 $ sudo docker ps
+
+--- entramos al container ---
 $ sudo docker exec -it 42c7582fd61e bash
 
+--- version --
+$ samba --version
+---
+Version 4.17.12-Debian
+---
+
+--- create users samba ---
 $ groupadd smbusers
 $ adduser --no-create-hom --shell /usr/sbin/nologin smbuser
 $ smbpasswd -a smbuser
 $ usermod -G smbusers smbuser
 $ groups smbuser
 
+--- create share samba folders ---
 $ mkdir -p /app/SahreDirectory
 $ chown nobody:nogroup /app/SahreDirectory
 $ chmod 777 /app/SahreDirectory
