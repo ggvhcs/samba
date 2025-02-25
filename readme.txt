@@ -1,21 +1,38 @@
 # --- *** Samba share folder with Docker in Linux Mint 21. *** --- #
 
+--- github repo ---
+https://github.com/ggvhcs/samba
+
 Develop Enviroment:
 ---
 Linux Mint 21.2 Mate x64.
 Docker version 24.0.7, build 24.0.7-0ubuntu2~22.04.1
 git version 2.34.1
 Github Desktop version 3.2.0-linux1 (x64)
-Code version 1.96.4
+Visual Studio Code version 1.96.4
 ---
 
---- download image debian latest from hub docker ---
+1 --- download image debian latest from hub docker ---
 $ sudo docker pull debian:latest
+$ sudo docker images |grep debian
+
 
 $ cd ~/Documents/GitHub/linux/samba
-$ chmod 777 -Rvf ../samba
+$ ls -l
+---
+   394 Feb 22 13:21 Dockerfile
+   777 Feb 22 13:39 native-samba.txt
+  3255 Feb 25 08:19 readme.txt
+    43 Feb 22 13:21 run-samba.sh
+ 4096 Feb 25 07:07 ShareDirectory
+ 4096 Feb 25 07:05 ShareFolder
+  1037 Feb 25 07:06 smb.conf
+---
 
-# --- Create the Dockerfile file --- #
+$ chmod 777 -Rvf ../samba
+$ chown nobody:nogroup -Rvf ../samba
+
+2 --- Create the Dockerfile file --- #
 $ touch Dockerfile
 $ nano Dockerfile
 $ cat Dockerfile 
@@ -71,7 +88,7 @@ $ sudo docker run -ti --name smbdriver \
 $ sudo docker ps
 
 --- entramos al container ---
-$ sudo docker exec -it 42c7582fd61e bash
+$ sudo docker exec -it b75d45f92a5b bash
 
 --- version --
 $ samba --version
@@ -87,14 +104,19 @@ $ usermod -G smbusers smbuser
 $ groups smbuser
 
 --- create share samba folders ---
-$ mkdir -p /app/SahreDirectory
-$ chown nobody:nogroup /app/SahreDirectory
-$ chmod 777 /app/SahreDirectory
+$ mkdir -p /app/ShareDirectory
+$ chown nobody:nogroup /app/ShareDirectory
+$ chmod 777 /app/ShareDirectory
+
+$ mkdir -p /app/ShareFolder
+$ chown nobody:nogroup /app/ShareFolder
+$ chmod 777 /app/ShareFolder
 
 $ --- run the service --- #
 $ /usr/sbin/nmbd
 $ /usr/sbin/smbd
 
+--- Test the setting in smb.conf ---
 testparm
 
 lsof -Pni :137
@@ -107,6 +129,8 @@ lsof -Pni :445
 COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
 smbd    6137 root   34u  IPv6  24820      0t0  TCP *:445 (LISTEN)
 smbd    6137 root   36u  IPv4  24822      0t0  TCP *:445 (LISTEN)
+
+telnet 172.15.0.20 445
 
 # Auto Start Containers after System Reboot.
 
@@ -132,3 +156,4 @@ sudo systemctl enable docker-samba.service
 sudo systemctl disable docker-samba.service
 
 # --- *** Samba share folder Native in Linux Mint 21. *** --- #
+
