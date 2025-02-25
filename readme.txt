@@ -110,24 +110,25 @@ smbd    6137 root   36u  IPv4  24822      0t0  TCP *:445 (LISTEN)
 
 # Auto Start Containers after System Reboot.
 
-nano /etc/systemd/system/docker-samba.service
+$ cd ~
+$ sudo nano /etc/systemd/system/docker-samba.service
 
 ---
 [Unit]
-Description=mariadb 10-4
+Description=dockersmb
 Requires=docker.service
 After=docker.service
 
 [Service]
 Restart=always
-ExecStart=/usr/bin/docker start 8f6c5be1098a
-ExecStop=/usr/bin/docker stop 8f6c5be1098a
+ExecStart=/usr/bin/docker start dockersmb
+ExecStop=/usr/bin/docker stop dockersmb
 
 [Install]
 WantedBy=default.target
 ---
 
-systemctl enable docker-samba.service
-systemctl disable docker-samba.service
+sudo systemctl enable docker-samba.service
+sudo systemctl disable docker-samba.service
 
 # --- *** Samba share folder Native in Linux Mint 21. *** --- #
