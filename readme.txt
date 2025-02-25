@@ -55,13 +55,11 @@ $ sudo docker images |grep samba
 debian_samba                     latest           57691f3b30f7   30 hours ago    468MB
 ---
 
----
-run an sqlite container with (-d ) for create in backgruond
-net bridge interface for connect to samba and -v for the confs and volumes.
----
-$ ls
----
----
+--- create an network bridge ---
+$ sudo docker network create --subnet=172.15.0.0/16 homenet
+$ sudo docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+5d945100191c   homenet   bridge    local
 
 $ sudo docker run -ti --name smbdriver \
 --net homenet --ip 172.15.0.20 \
