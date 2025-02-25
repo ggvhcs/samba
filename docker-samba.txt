@@ -1,3 +1,5 @@
+#--- Samba share folder with Docker in Linux Mint 21. ---#
+
 Develop Enviroment:
 ---
 Linux Mint 21.2 Mate x64.
@@ -7,10 +9,13 @@ Github Desktop version 3.2.0-linux1 (x64)
 Code version 1.96.4
 ---
 
+--- download image debian latest from hub docker ---
+$ sudo docker pull debian:latest
+
 $ cd ~/Documents/GitHub/linux/samba
 $ chmod 777 -Rvf ../samba
 
---- Dockerfile file created ---
+# --- Create the Dockerfile file --- #
 $ touch Dockerfile
 $ nano Dockerfile
 $ cat Dockerfile 
@@ -36,6 +41,7 @@ RUN chmod +x /app/run-samba.sh
 CMD [ "bash", "/app/run-samba.sh" ]
 ---
 
+# --- Create the run-samba.sh file --- #
 $ touch run-samba.sh
 $ cat run-samba.sh
 ---
@@ -43,7 +49,7 @@ $ cat run-samba.sh
 ---
 
 --- create image from debian latest ---
-$ sudo docker build -t debian-samba .
+$ sudo docker build -t debian_samba .
 $ sudo docker images |grep samba
 ---
 debian_samba                     latest           57691f3b30f7   30 hours ago    468MB
@@ -53,12 +59,16 @@ debian_samba                     latest           57691f3b30f7   30 hours ago   
 run an sqlite container with (-d ) for create in backgruond
 net bridge interface for connect to samba and -v for the confs and volumes.
 ---
+$ ls
+---
+---
+
 $ sudo docker run -ti --name smbdriver \
---net homenet --ip 172.15.0.18 \
--d \
+--net homenet --ip 172.15.0.20 \
+-d --name dockersmb \
 -v $(pwd):/app \
 -v $(pwd)/smb.conf:/etc/samba/smb.conf \
---interactive --tty --entrypoint /bin/bash debian-samba
+--interactive --tty --entrypoint /bin/bash debian_samba
 
 $ sudo docker ps
 
