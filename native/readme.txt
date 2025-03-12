@@ -3,6 +3,9 @@
 --- github repo ---
 https://github.com/ggvhcs/samba
 
+--- youtube ---
+https://youtu.be/KwI1sr6_hus
+
 Enviroment:
 ---
 Ubuntu 22.04.
