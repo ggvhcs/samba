@@ -5,11 +5,10 @@ https://github.com/ggvhcs/samba
 
 Enviroment:
 ---
-Debian 12.
+Ubuntu 22.04.
 ---
 
 --- installation. ---
-$ dpkg -l samba
 $ apt-get update //update repos db.
 $ apt-get -y install samba smbclient //install samba and samba client.
 
@@ -27,22 +26,29 @@ $ mkdir -p /srv/SHARE/ShareDirectory
 $ chown nobody:nogroup /srv/SHARE/ShareDirectory
 $ chmod 777 /srv/SHARE/ShareDirectory
 
+--- another share Folder ---
 $ mkdir -p /srv/SHARE/ShareFolder
 $ chown nobody:nogroup /srv/SHARE/ShareFolder
 $ chmod 777 /srv/SHARE/ShareFolder
 
+--- !we need make some changes on smb.conf ---
+
+--- restart and check the service ---
+$ systemctl restart smbd nmbd
+
 testparm
 
+--- check the port is up ---
 lsof -Pni :137
 COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
-nmbd    6085 root   16u  IPv4  25746      0t0  UDP *:137 
-nmbd    6085 root   18u  IPv4  25749      0t0  UDP 10.10.2.9:137 
-nmbd    6085 root   19u  IPv4  25750      0t0  UDP 10.10.2.127:137 
+nmbd    3169 root   13u  IPv4  53357      0t0  UDP *:137 
+nmbd    3169 root   15u  IPv4  53369      0t0  UDP 192.168.35.7:137 
+nmbd    3169 root   16u  IPv4  53370      0t0  UDP 192.168.35.255:137
 
 lsof -Pni :445
 COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
-smbd    6137 root   34u  IPv6  24820      0t0  TCP *:445 (LISTEN)
-smbd    6137 root   36u  IPv4  24822      0t0  TCP *:445 (LISTEN)
+smbd    3180 root   44u  IPv6  53480      0t0  TCP *:445 (LISTEN)
+smbd    3180 root   46u  IPv4  53482      0t0  TCP *:445 (LISTEN)
 
 smbclient --version
 smbclient -L localhost -U%
