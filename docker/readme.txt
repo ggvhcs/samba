@@ -18,23 +18,22 @@ $ sudo docker images |grep debian
 
 
 $ cd ~/Documents/GitHub/linux/samba
+$ cd docker
 $ ls -l
 ---
-   394 Feb 22 13:21 Dockerfile
-   777 Feb 22 13:39 native-samba.txt
-  3255 Feb 25 08:19 readme.txt
-    43 Feb 22 13:21 run-samba.sh
- 4096 Feb 25 07:07 ShareDirectory
+  394 Feb 22 13:21 Dockerfile
+ 3499 Mar 13 20:42 readme.txt
+ 4096 Feb 25 08:54 ShareDirectory
  4096 Feb 25 07:05 ShareFolder
-  1037 Feb 25 07:06 smb.conf
+ 1037 Feb 25 07:06 smb.conf
 ---
 
-$ chmod 777 -Rvf ../samba
-$ chown nobody:nogroup -Rvf ../samba
+$ sudo chmod 777 -Rvf ../../samba
+$ sudo chown nobody:nogroup -Rvf ../../samba
 
 2 --- Create the Dockerfile file --- #
 $ touch Dockerfile
-$ nano Dockerfile
+$ sudo nano Dockerfile
 $ cat Dockerfile 
 ---
 FROM debian:latest
@@ -42,7 +41,8 @@ FROM debian:latest
 EXPOSE 137/udp 138/udp
 EXPOSE 139 445
 
-RUN apt update -qq && apt install -qq -y samba
+RUN apt update 
+RUN apt install -qq -y samba
 RUN apt install -qq -y samba-common-bin
 RUN apt install -qq -y lsof
 RUN apt install -qq -y vim
@@ -51,18 +51,6 @@ RUN apt clean
 RUN rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
-ADD run-samba.sh /app/run-samba.sh
-RUN chmod +x /app/run-samba.sh
-
-CMD [ "bash", "/app/run-samba.sh" ]
----
-
-# --- Create the run-samba.sh file --- #
-$ touch run-samba.sh
-$ cat run-samba.sh
----
-/usr/sbin/nmbd && /usr/sbin/smbd
 ---
 
 --- create image from debian latest ---
@@ -88,7 +76,7 @@ $ sudo docker run -ti --name smbdriver \
 $ sudo docker ps
 
 --- entramos al container ---
-$ sudo docker exec -it b75d45f92a5b bash
+$ sudo docker exec -it 51a8c5f8a2ca bash
 
 --- version --
 $ samba --version
@@ -96,17 +84,23 @@ $ samba --version
 Version 4.17.12-Debian
 ---
 
---- create users samba ---
+--- create user 1 ---
 $ groupadd smbusers
-$ adduser --no-create-hom --shell /usr/sbin/nologin smbuser
-$ smbpasswd -a smbuser
-$ usermod -G smbusers smbuser
-$ groups smbuser
+$ adduser --no-create-hom --shell /usr/sbin/nologin smbu1
+$ smbpasswd -a smbu1
+$ usermod -G smbusers smbu1
+$ groups smbu1
+
+--- create user 2 ---
+$ adduser --no-create-hom --shell /usr/sbin/nologin smbu2
+$ smbpasswd -a smbu2
+$ usermod -G smbusers smbu2
+$ groups smbu2
 
 --- create share samba folders ---
 $ mkdir -p /app/ShareDirectory
-$ chown nobody:nogroup /app/ShareDirectory
-$ chmod 777 /app/ShareDirectory
+$ chown nobody:nogroup -Rvf /app/ShareDirectory
+$ chmod 777 -Rvf /app/ShareDirectory
 
 $ mkdir -p /app/ShareFolder
 $ chown nobody:nogroup /app/ShareFolder
@@ -131,6 +125,10 @@ smbd    6137 root   34u  IPv6  24820      0t0  TCP *:445 (LISTEN)
 smbd    6137 root   36u  IPv4  24822      0t0  TCP *:445 (LISTEN)
 
 telnet 172.15.0.20 445
+
+smbclient --version
+smbclient -L localhost -U%
+smbclient //localhost/ShareDirectory -Uadministrator -c 'ls'
 
 # Auto Start Containers after System Reboot.
 
